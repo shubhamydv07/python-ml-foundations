@@ -1,0 +1,9 @@
+name = "SHUBHAM"
+print(name[0:7])
+print(name[-6:-2]) #CONVERT NEGATIVE SLICING INTO POSITIVE ON PEN PAPER
+print(name[1:5])
+
+print(name[:7]) #BLANK IN STARTING MEANS , 0 IS WRITTEN
+print(name[3:]) #BLANK IN END MEANS , LENGTH - 1 IS WRITTEN
+
+print(name[2:7:2]) #SKIPPING THE SLICING VALUE

@@ -1,0 +1,47 @@
+🟢 Easy Level
+1. Create a Class Create a Person class with name and age attributes and a greet() method that prints "Hi, I am <name> and I am <age> years old."
+
+2. Rectangle Class Create a Rectangle class with width and height attributes and methods area() and perimeter().
+
+3. Counter Class Create a Counter class with methods increment(), decrement(), and reset() that tracks a count starting from 0.
+
+4. Student Class Create a Student class with name and marks and a method grade() that returns:
+
+"A" if marks >= 90
+"B" if marks >= 80
+"C" if marks >= 70
+"F" otherwise
+5. Circle Class Create a Circle class with radius and methods area() and circumference(). (π = 3.14159)
+
+🟡 Medium Level
+6. Inheritance — Animal Create a parent class Animal with name and sound and a method speak(). Create child classes Dog and Cat that inherit from Animal and override speak().
+
+7. Bank Account Create a BankAccount class with:
+
+Private __balance attribute
+deposit(amount) method
+withdraw(amount) method (can't go below 0!)
+get_balance() method
+8. Stack Class Create a Stack class using a list with methods:
+
+push(item) — add to top
+pop() — remove from top
+peek() — see top without removing
+is_empty() — returns True if empty
+9. Library System Create a Book class and a Library class where:
+
+Library can add_book(), remove_book(), and search_book() by title
+10. Inheritance — Shape Create a parent class Shape with an area() method. Create child classes Rectangle, Circle, and Triangle that each override area().
+
+🟡 Medium-Hard Level
+11. Employee Payroll Create an Employee class with name, hours_worked, and hourly_rate and a method calculate_pay(). Create a child class Manager that gets a 20% bonus on top!
+
+12. Student Report Card Create a Student class that:
+
+Stores multiple subject marks in a dictionary
+Has methods add_subject(), average(), highest(), lowest(), and grade()
+💡 Key OOP Principles You'll Practice
+Encapsulation — hiding data with private variables
+Inheritance — child class gets parent's features
+Polymorphism — same method, different behavior
+Abstraction — hiding complex details

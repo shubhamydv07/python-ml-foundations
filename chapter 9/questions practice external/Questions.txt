@@ -1,0 +1,32 @@
+1. Create and Write Write a program that creates a file hello.txt and writes "Hello, World!" into it.
+
+2. Read a File Write a program that opens and prints the entire content of a file.
+
+3. Append to a File Write a program that appends "This is a new line." to an existing file without deleting old content.
+
+4. Count Lines Write a program that reads a file and prints the total number of lines in it.
+
+5. Count Words Write a program that reads a file and prints the total number of words in it.
+
+🟡 Medium Level
+6. Search a Word Write a program that asks the user for a word and checks whether it exists in a file or not.
+
+7. Copy a File Write a program that copies the content of source.txt into destination.txt.
+
+8. Find and Replace Write a program that replaces every occurrence of a word in a file with another word.
+
+9. Remove a Line Write a program that deletes a specific line number from a file.
+
+10. Word Frequency Write a program that reads a file and prints how many times each word appears.
+
+🟡 Medium-Hard Level
+11. Student Records Write a program that:
+
+Lets user add a student name and marks to students.txt
+Can display all students
+Can search for a student by name
+12. To-Do List App Write a program that:
+
+Can add tasks to todo.txt
+Can view all tasks
+Can mark a task as done by deleting it from the file
