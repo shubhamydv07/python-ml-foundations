@@ -1,96 +1,116 @@
-import speech_recognition as sr
+import os
 import webbrowser
-import pyttsx3
-import musicLibrary
 import requests
-from openai import OpenAI
+import pyttsx3
+import speech_recognition as sr
+from dotenv import load_dotenv
+import musicLibrary
+from client import ask_ai
 
-# pip install pocketsphinx
+load_dotenv()
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
-recognizer = sr.Recognizer()
-engine = pyttsx3.init()
-newsapi = "d093053d72bc40248998159804e0e67d"
 
 def speak(text):
+    print("Jarvis:", text)
+    engine = pyttsx3.init()  # fresh engine each time avoids the silent-after-first-call bug
     engine.say(text)
     engine.runAndWait()
+    engine.stop()
 
-def aiProcess(command):
-    client = OpenAI(api_key = "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")
 
-    response = client.responses.create(
-    model="gpt-6-astra",
-    input=command,
-    )
+SITES = {
+    "google": "https://google.com",
+    "youtube": "https://www.youtube.com",
+    "linkedin": "https://www.linkedin.com",
+    "whatsapp": "https://web.whatsapp.com",
+    "facebook": "https://facebook.com",
+    "chat gpt": "https://chatgpt.com",
+}
 
-    return response.output_text
 
-def processCommand(c):
-    if "open google" in c.lower():
-        webbrowser.open("https://google.com")
-    elif "open youtube" in c.lower():
-        webbrowser.open("https://www.youtube.com")
-    elif "open linkedin" in c.lower():
-        webbrowser.open("https://www.linkedin.com")
-    elif "open whatsapp" in c.lower():
-        webbrowser.open("https://web.whatsapp.com")
-    elif "open facebook" in c.lower():
-        webbrowser.open("https://facebook.com")
-    elif c.lower().startswith("play"):
-        song = c.lower().split(" ")[1]
-        link = musicLibrary.music[song]
-        webbrowser.open(link)
-    elif "news" in c.lower():
-        r = requests.get(f"https://newsapi.org/v2/top-headlines?country=in&apikey={newsapi}")
-        if r.status_code == 200:
-            #parse the json response
-            data = r.json()
+def get_news(limit=5):
+    try:
+        r = requests.get(
+            "https://newsapi.org/v2/top-headlines",
+            params={"country": "in", "pageSize": limit},
+            headers={"X-Api-Key": NEWS_API_KEY},
+            timeout=8,
+        )
+        data = r.json()
+        if r.status_code != 200:
+            print("News error:", data.get("message"))
+            speak("I couldn't fetch the news.")
+            return
+        articles = data.get("articles", [])
+        if not articles:
+            speak("No headlines found.")
+            return
+        speak("Here are the top headlines.")
+        for a in articles:
+            speak(a["title"])
+    except Exception as e:
+        print("News exception:", e)
+        speak("News request failed.")
 
-            #extract the articles
-            articles = data.get('articles',[])
 
-            # speak the headlines
-            for article in articles:
-                speak(article['title'])
+def processCommand(command):
+    c = command.lower().strip()
+    print("Command:", c)
 
+    for name, url in SITES.items():
+        if f"open {name}" in c:
+            webbrowser.open(url)
+            return
+
+    if c.startswith("play "):
+        song = c[5:].strip()
+        link = musicLibrary.music.get(song)
+        if link:
+            webbrowser.open(link)
+        else:
+            speak(f"I don't have {song} in my library.")
+    elif "news" in c.split():
+        get_news()
     else:
-        #Let openAI handle the request
-        answer = aiProcess(c)
-        print(answer)
+        speak(ask_ai(command))  # everything else goes to Gemini
 
 
+def listen_once(r, source, timeout, limit):
+    """Returns recognized text, or None if nothing usable was heard."""
+    try:
+        audio = r.listen(source, timeout=timeout, phrase_time_limit=limit)
+        return r.recognize_google(audio)
+    except (sr.WaitTimeoutError, sr.UnknownValueError):
+        return None
+    except Exception as e:
+        print("Recognition error:", e)
+        return None
 
 
+if __name__ == "__main__":
+    r = sr.Recognizer()
+    r.pause_threshold = 0.6
+    r.dynamic_energy_threshold = True
 
+    with sr.Microphone() as source:  # one mic session for the whole run
+        print("Calibrating for background noise...")
+        r.adjust_for_ambient_noise(source, duration=1)
+        speak("Jarvis online.")
 
+        while True:
+            text = listen_once(r, source, timeout=5, limit=4)
+            if not text:
+                continue
+            print("Heard:", text)
 
-    
-    
-if __name__ =="__main__":
-    speak("Initializing Jarvis ......")
-    
-    while True:
-        # Listen for the wake word "Jarvis"
-        # obtain audio for microphone
-        r = sr.Recognizer()
-        
-
-        print("recognizing....")
-        try:
-            with sr.Microphone() as source:
-                print("Listening .....")
-                audio = r.listen(source, timeout=2,phrase_time_limit=1)
-            word = r.recognize_google(audio)
-            if (word.lower()=="jarvis"):
-                speak("yeah")
-                # Listen for command 
-                with sr.Microphone() as source:
-                    print("Jarvis Active.....")
-                    audio = r.listen(source)
-                    command = r.recognize_google(audio)
-
-                    processCommand(command)
-
-
-        except Exception as e:
-            print("error; {0}".format(e))
+            if "jarvis" in text.lower():
+                # supports "Jarvis what is a mutex" in one breath
+                command = text.lower().split("jarvis", 1)[1].strip()
+                if not command:
+                    speak("Yes?")
+                    command = listen_once(r, source, timeout=6, limit=10)
+                    if not command:
+                        speak("I didn't catch that.")
+                        continue
+                processCommand(command)
